@@ -1,26 +1,26 @@
 #TODO List for the getting the version 0.5
 
 = Optimization =
-* Code review
-* Logging
-* Limiting variables
+ * Code review
+ * Logging
+ * Limiting variables
 
 = Functionnality =
-* 1 player game mode (IA)
-* Save the game
-* Ending the game
-* Exiting the app
+ * 1 player game mode (IA)
+ * Save the game
+ * Ending the game
+ * Exiting the app
 
 = Graphic =
-* Add board limits
-* New pawn design
-* New background
+ * Add board limits
+ * New pawn design
+ * New background
 
 = Later =
-* Extensibility
-* Partial redraw
-* Real IA
-* Improved menu
-* Available on the market ?
-* Replacing SparseIntArray
-* As much UI in XML as possible (new Architecture ?)
+ * Extensibility
+ * Partial redraw
+ * Real IA
+ * Improved menu
+ * Available on the market ?
+ * Replacing SparseIntArray
+ * As much UI in XML as possible (new Architecture ?)
