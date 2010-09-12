@@ -16,7 +16,7 @@
  * New pawn design
  * New background
 
-= Later =
+= Roadmap =
  * Extensibility
  * Partial redraw
  * Real IA
