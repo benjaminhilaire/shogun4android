@@ -12,6 +12,7 @@ import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 public class BoardView extends View {
 
@@ -44,6 +45,24 @@ public class BoardView extends View {
 		super(context);
 		resetView();
 	}
+	
+	public SparseIntArray[] getSaveInfo(){
+		return new SparseIntArray[] {positions,white,black};
+	}
+	
+	public void resumeSavedView(SparseIntArray[] load){
+		positions = load[0];
+		white = load[1];
+		black = load[2];
+		for (int i=0;i < 64;i++){
+			int toTest = positions.get(i);
+			if (toTest == 10){
+				whiteShogun = i;
+			} else if (toTest == 20){
+				blackShogun = i;
+			}
+		}
+	}
 
 	public boolean onTouchEvent(MotionEvent event) {
 		final int action = event.getAction();
@@ -58,10 +77,14 @@ public class BoardView extends View {
 					if (possibleMoves.get(iconicPosition)) { // PAWN TAKEN
 						movePawn(pawnSelected, iconicPosition, posSelected);
 						if (!whiteTurn && iconicPosition == blackShogun) {
-							gameOver(true);
+							Toast.makeText(getContext(),R.string.blue_won,
+									Toast.LENGTH_LONG).show();
+							return false;
 						}
 						if (whiteTurn && iconicPosition == whiteShogun) {
-							gameOver(false);
+							Toast.makeText(getContext(),R.string.red_won,
+									Toast.LENGTH_LONG).show();
+							return false;
 						}
 					} else { // NEW SELECTION
 						addPossibleMoves(pawn, iconicPosition);
@@ -84,10 +107,6 @@ public class BoardView extends View {
 		pawnSelected = 0;
 		posSelected = -1;
 		possibleMoves.clear();
-	}
-
-	private void gameOver(boolean winner) {
-		Log.i("SHOGUN", "Winner is white : " + winner);
 	}
 
 	private void movePawn(int toMove, int iconicPosition, int oldPos) {

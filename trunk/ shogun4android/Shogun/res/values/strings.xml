@@ -2,8 +2,12 @@
 <resources>
 	<string name="app_name">Shogun</string>
 	<string-array name="menu_array">
-		<item>New Game</item>
+		<item>1 player game</item>
+		<item>2 players game</item>
 		<item>Resume Game</item>
 		<item>Exit</item>
 	</string-array>
+	<string name="blue_won">The blue player won !!!</string>
+	<string name="red_won">The red player won !!!</string>
+	<string name="not_implemented">NOT YET IMPLEMENTED</string>
 </resources>
