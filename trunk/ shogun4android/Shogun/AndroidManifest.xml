@@ -12,6 +12,7 @@
             </intent-filter>
         </activity>
 		<activity android:name=".board.BoardDisplay" />
+		<activity android:name=".board.rules.Rules" />
     </application>
 
 

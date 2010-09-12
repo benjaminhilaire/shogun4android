@@ -28,7 +28,17 @@ public class BoardView extends View {
 	private int blackShogun = 63;
 	private boolean whiteTurn = true;
 	private SparseBooleanArray possibleMoves;
+	private boolean gameOver = false;
+	private boolean wait = false;
 
+	public void waitForIA(){
+		wait = true;
+	}
+	
+	public void stopWaitForIA(){
+		wait = false;
+	}
+	
 	private int realToIconic(float x, float y) {
 		int deca = (int) Math.floor(x / ICON_WIDTH);
 		int unite = (int) Math.floor(y / ICON_WIDTH);
@@ -79,13 +89,13 @@ public class BoardView extends View {
 						if (!whiteTurn && iconicPosition == blackShogun) {
 							Toast.makeText(getContext(),R.string.blue_won,
 									Toast.LENGTH_LONG).show();
-							return false;
 						}
 						if (whiteTurn && iconicPosition == whiteShogun) {
 							Toast.makeText(getContext(),R.string.red_won,
 									Toast.LENGTH_LONG).show();
-							return false;
+							gameOver = true;
 						}
+						return false;
 					} else { // NEW SELECTION
 						addPossibleMoves(pawn, iconicPosition);
 					}
@@ -93,6 +103,7 @@ public class BoardView extends View {
 			} else { // If move
 				if (pawnSelected != 0 && possibleMoves.get(iconicPosition)) {
 					movePawn(pawnSelected, iconicPosition, posSelected);
+					return false;
 				}
 			}
 			break;
@@ -109,9 +120,9 @@ public class BoardView extends View {
 		possibleMoves.clear();
 	}
 
-	private void movePawn(int toMove, int iconicPosition, int oldPos) {
+	public void movePawn(int toMove, int iconicPosition, int oldPos) {
 		Pawn pawn = new Pawn(toMove, iconicPosition, black, white);
-		if (pawn.isWhite() == whiteTurn) {
+		if (pawn.isWhite() == whiteTurn && !wait) {
 			positions.put(oldPos, 0);
 			positions.put(iconicPosition, toMove);
 			if (pawn.isWhite()) {
@@ -293,6 +304,14 @@ public class BoardView extends View {
 		Canvas canvas = new Canvas(bitmap);
 		drawable.draw(canvas);
 		return bitmap;
+	}
+	
+	public boolean isGameOver() {
+		return gameOver;
+	}
+
+	public void setGameOver(boolean gameOver) {
+		this.gameOver = gameOver;
 	}
 
 }
