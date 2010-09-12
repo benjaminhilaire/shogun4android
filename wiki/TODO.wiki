@@ -8,8 +8,8 @@
 = Functionnality =
  * 1 player game mode (IA)
  * Save the game
- * Ending the game
- * Exiting the app
+ * Ending the game (DONE)
+ * Exiting the app (DONE)
 
 = Graphic =
  * Add board limits
