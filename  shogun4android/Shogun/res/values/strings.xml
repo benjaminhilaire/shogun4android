@@ -10,4 +10,9 @@
 	<string name="blue_won">The blue player won !!!</string>
 	<string name="red_won">The red player won !!!</string>
 	<string name="not_implemented">NOT YET IMPLEMENTED</string>
+	<string name="rules_title">How to play</string>
+	<string name="rules">The goal of this game is to kill the foe shogun.
+To do so, each player got 8 pawn (including its shogun) wich can move from 1 to 4 cases. After each move, the number of move possible is changing. 1 > 2 2 > 3 3 > 4 4 > 1
+Each move can be made horizontal of vertical, no "jump" is possible.
+Remember that this app is an exercice, my first Android application.</string>
 </resources>

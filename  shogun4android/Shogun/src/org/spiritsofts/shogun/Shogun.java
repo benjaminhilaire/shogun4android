@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 public class Shogun extends ListActivity {
 	public static final String LOAD = "LOAD";
+	public static final String ONEPLAYER = "ONEPLAYER";
 	/** Called when the activity is first created. */
 	
     private static final int ACTIVITY_BOARD=0;
@@ -33,14 +34,15 @@ public class Shogun extends ListActivity {
 		super.onListItemClick(l, v, position, id);
 		switch (position) {
 		case 0: // NEW 1 PLAYER GAME
-			Toast.makeText(getApplicationContext(), R.string.not_implemented,
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(),"WARNING : the IA not really playing",
+					Toast.LENGTH_LONG).show();
+			startGame(false,true);
 		break;
 		case 1: // NEW GAME
-			startGame(false);
+			startGame(false,false);
 		break;
 		case 2: // RESUME GAME
-			startGame(true);
+			startGame(true,false);
 			break;
 		default:
 			finish();
@@ -48,9 +50,10 @@ public class Shogun extends ListActivity {
 		}
 	}
 
-	private void startGame(boolean resumed) {
+	private void startGame(boolean resumed,boolean onePlayer) {
 		Intent i = new Intent(this,BoardDisplay.class);
 		i.putExtra(LOAD,resumed);
+		i.putExtra(ONEPLAYER,onePlayer);
 		startActivityForResult(i, ACTIVITY_BOARD);
 	}
 	
