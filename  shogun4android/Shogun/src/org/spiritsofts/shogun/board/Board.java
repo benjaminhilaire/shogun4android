@@ -67,9 +67,9 @@ public class Board extends Activity {
 			int position = board.realToIconic(event.getX(),event.getY()-50);
 			if (onePlayer){
 				if (whiteTurn){
-					humanTurn(position);
-				} else {
-					IAturn();
+					if (humanTurn(position)){
+						IAturn();
+					}
 				}
 			} else {
 				humanTurn(position);
@@ -83,10 +83,10 @@ public class Board extends Activity {
 	}
 
 	private void IAturn() {
-		whiteTurn = !whiteTurn;
+		switchTurn();
 	}
 	
-	private void humanTurn(int position){
+	private boolean humanTurn(int position){
 		boolean whiteTurnToPlay = whiteTurn;
 		if (board.isPawnMoving(position)){
 			if (board.moveHumanPawn(position,whiteTurnToPlay)){
@@ -99,14 +99,17 @@ public class Board extends Activity {
                                          Toast.LENGTH_LONG).show();
                         finish();
                  } else {
-                	 whiteTurn = !whiteTurnToPlay;
+                	 switchTurn();
+                	 return true;
                  }
 			} else {
 				if (board.moveHumanPawn(position,whiteTurnToPlay)){
-					whiteTurn = !whiteTurnToPlay;
+					switchTurn();
+					return true;
 				}
 			}
 		}
+		return false;
 	}
 
 	@Override
@@ -125,6 +128,11 @@ public class Board extends Activity {
 			return true;
 		}
 		 return super.onMenuItemSelected(featureId, item);
+	}
+	
+	public void switchTurn(){
+		whiteTurn = !whiteTurn;
+		board.switchTurn();
 	}
 
 }
