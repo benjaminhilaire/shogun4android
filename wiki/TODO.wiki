@@ -4,6 +4,7 @@
  * Code review
  * Logging
  * Limiting variables
+ * Separate view and Movements
 
 = Functionnality =
  * 1 player game mode (IA)
