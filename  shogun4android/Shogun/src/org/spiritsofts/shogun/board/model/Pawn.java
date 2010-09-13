@@ -1,4 +1,4 @@
-package org.spiritsofts.shogun.board.view;
+package org.spiritsofts.shogun.board.model;
 
 import android.util.SparseIntArray;
 
