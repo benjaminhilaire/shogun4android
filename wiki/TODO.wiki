@@ -2,15 +2,15 @@
 
 = Optimization =
  * Code review
- * Logging
- * Limiting variables
- * Separate view and Movements
+ * Logging (DONE the 13/09)
+ * Limiting variables (DONE the 13/09)
+ * Separate view and Movements (DONE the 13/09)
 
 = Functionnality =
  * 1 player game mode (IA)
  * Save the game
- * Ending the game (DONE)
- * Exiting the app (DONE)
+ * Ending the game (DONE the 12/09)
+ * Exiting the app (DONE the 12/09)
 
 = Graphic =
  * Add board limits
