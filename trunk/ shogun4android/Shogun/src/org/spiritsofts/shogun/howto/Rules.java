@@ -1,4 +1,4 @@
-package org.spiritsofts.shogun.board.rules;
+package org.spiritsofts.shogun.howto;
 
 import org.spiritsofts.shogun.R;
 

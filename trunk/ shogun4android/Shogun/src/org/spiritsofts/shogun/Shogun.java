@@ -1,6 +1,6 @@
 package org.spiritsofts.shogun;
 
-import org.spiritsofts.shogun.board.BoardDisplay;
+import org.spiritsofts.shogun.board.Board;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -51,7 +51,7 @@ public class Shogun extends ListActivity {
 	}
 
 	private void startGame(boolean resumed,boolean onePlayer) {
-		Intent i = new Intent(this,BoardDisplay.class);
+		Intent i = new Intent(this,Board.class);
 		i.putExtra(LOAD,resumed);
 		i.putExtra(ONEPLAYER,onePlayer);
 		startActivityForResult(i, ACTIVITY_BOARD);
