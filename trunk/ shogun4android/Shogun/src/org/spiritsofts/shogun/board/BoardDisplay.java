@@ -12,7 +12,6 @@ import android.util.SparseIntArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class BoardDisplay extends Activity {
 
