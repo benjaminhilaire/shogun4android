@@ -27,6 +27,7 @@ public class BoardView extends View {
 	private int posSelected = -1;
 	private int whiteShogun;
 	private int blackShogun;
+	private boolean whiteTurn = true;
 
 	private SparseBooleanArray possibleMoves;
 
@@ -37,6 +38,10 @@ public class BoardView extends View {
 
 	public SparseIntArray[] getSaveInfo() {
 		return new SparseIntArray[] { positions, white, black };
+	}
+	
+	public void switchTurn(){
+		whiteTurn = !whiteTurn;
 	}
 
 	public void resumeSavedView(SparseIntArray[] load) {
@@ -138,9 +143,9 @@ public class BoardView extends View {
 	 * @param iconicPosition
 	 * @param oldPos
 	 */
-	public boolean moveIAPawn(int pawnId,int targetPosition,boolean isWhite) {
+	public boolean moveIAPawn(int pawnId,int targetPosition) {
 		addPossibleMoves(pawnId,positions.get(pawnId));
-		if (moveHumanPawn(targetPosition,isWhite)){
+		if (moveHumanPawn(targetPosition,false)){
 			return true;
 		} else {
 			clearSelected();
@@ -155,13 +160,15 @@ public class BoardView extends View {
 	 */
 	private void addPossibleMoves(int pawnId, int iconicPosition) {
 		Pawn pawn = new Pawn(pawnId, iconicPosition, black, white);
-		pawnSelected = pawnId; // Selection
-		posSelected = iconicPosition;
-		possibleMoves.clear();
-		int[] moves = pawn.getPossibleMove(positions);
-		for (int it = 0; it < 4; it++) {
-			if (moves[it] != 99) {
-				possibleMoves.put(moves[it], true);
+		if (whiteTurn == pawn.isWhite()){
+			pawnSelected = pawnId; // Selection
+			posSelected = iconicPosition;
+			possibleMoves.clear();
+			int[] moves = pawn.getPossibleMove(positions);
+			for (int it = 0; it < 4; it++) {
+				if (moves[it] != 99) {
+					possibleMoves.put(moves[it], true);
+				}
 			}
 		}
 	}
