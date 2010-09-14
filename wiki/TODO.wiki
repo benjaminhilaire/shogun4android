@@ -1,16 +1,12 @@
-#TODO List for the getting the version 0.5
+#summary TODO : List for the getting the version 0.5
 
 = Optimization =
  * Code review
- * Logging (DONE the 13/09)
- * Limiting variables (DONE the 13/09)
- * Separate view and Movements (DONE the 13/09)
+ * Changing the pawn identification system (state instead of ID) >> See Next_Dev page
 
 = Functionnality =
- * 1 player game mode (IA)
+ * IA (easy)
  * Save the game
- * Ending the game (DONE the 12/09)
- * Exiting the app (DONE the 12/09)
 
 = Graphic =
  * Add board limits
@@ -23,5 +19,13 @@
  * Real IA
  * Improved menu
  * Available on the market ?
- * Replacing SparseIntArray
  * As much UI in XML as possible (new Architecture ?)
+ * Multiple save possible
+
+= Done =
+ * Ending the game (DONE the 12/09)
+ * Exiting the app (DONE the 12/09)
+ * Logging (DONE the 13/09)
+ * Limiting variables (DONE the 13/09)
+ * Separate view and Movements (DONE the 13/09)
+ * 1 player game mode
