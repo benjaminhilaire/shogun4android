@@ -28,4 +28,4 @@
  * Logging (DONE the 13/09)
  * Limiting variables (DONE the 13/09)
  * Separate view and Movements (DONE the 13/09)
- * 1 player game mode
+ * 1 player game mode (DONE the 12/09)
