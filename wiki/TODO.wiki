@@ -2,7 +2,6 @@
 
 = Optimization =
  * Code review
- * Changing the pawn identification system (state instead of ID) >> See Next_Dev page
 
 = Functionnality =
  * IA (easy)
@@ -29,3 +28,4 @@
  * Limiting variables (DONE the 13/09)
  * Separate view and Movements (DONE the 13/09)
  * 1 player game mode (DONE the 12/09)
+ * Changing the pawn identification system (state instead of ID) (Done 14/09)
