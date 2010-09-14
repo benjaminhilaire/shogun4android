@@ -15,56 +15,60 @@ import android.widget.Toast;
 
 public class Board extends Activity {
 
+	private static final int MAGICAL_CORRECTION = 50;
 	private BoardView board;
 	private boolean onePlayer = false;
 	private boolean whiteTurn = true;
+	private int m_IALevel;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		board = new BoardView(getApplicationContext());
-		if (!getIntent().getExtras().getBoolean(Shogun.LOAD)) { // clear the old
-			// // one
-			loadGame(board);
+		Bundle extra = getIntent().getExtras();
+		if (!extra.getBoolean(Shogun.LOAD)) {
+			loadGame();
 		}
-		onePlayer = getIntent().getExtras().getBoolean(Shogun.ONEPLAYER);
+		int level = extra.getInt(Shogun.IA_LEVEL);
+		if (level > 0){
+			onePlayer = true;
+			m_IALevel = level;
+		} else {
+			onePlayer = false;
+		}
 		setContentView(board);
 	}
 
-	private void loadGame(BoardView board) {
-		// Get the load data somewhere
-		//SparseIntArray[] load = null;
+	private void loadGame() {
 		// board.resumeSavedView(load);
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		saveState();
+		saveGame();
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		saveState();
+		saveGame();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		loadGame(board);
+		loadGame();
 	}
 
-	private void saveState() {
-		//SparseIntArray[] savedGame = board.getSaveInfo();
-		// TODO : Save the actual data
+	private void saveGame() {
+		//SparseArray<Integer> saveGame = board.getSaveInfo();
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN :
-			int position = board.realToIconic(event.getX(),event.getY()-50);
+			int position = board.realToIconic(event.getX(),event.getY()-MAGICAL_CORRECTION);
 			if (onePlayer){
 				if (whiteTurn){
 					if (humanTurn(position)){
@@ -90,23 +94,20 @@ public class Board extends Activity {
 		boolean whiteTurnToPlay = whiteTurn;
 		if (board.isPawnMoving(position)){
 			if (board.moveHumanPawn(position,whiteTurnToPlay)){
-				if (whiteTurnToPlay && board.isBlackShogun(position)) {
-                     Toast.makeText(getApplicationContext(),R.string.blue_won,
-                                     Toast.LENGTH_LONG).show();
-                     finish();
-				 } else if (!whiteTurnToPlay && board.isWhiteShogun(position)) {
-                         Toast.makeText(getApplicationContext(),R.string.red_won,
-                                         Toast.LENGTH_LONG).show();
-                        finish();
-                 } else {
+				if (board.getWinner() != null){
+					int message = 0; 
+					if (board.getWinner()){
+						message = R.string.blue_won;
+					} else {
+						message = R.string.red_won;
+					}
+					 Toast.makeText(getApplicationContext(),message,
+                             Toast.LENGTH_LONG).show();
+					 finish();
+				} else {
                 	 switchTurn();
                 	 return true;
                  }
-			} else {
-				if (board.moveHumanPawn(position,whiteTurnToPlay)){
-					switchTurn();
-					return true;
-				}
 			}
 		}
 		return false;
@@ -130,7 +131,10 @@ public class Board extends Activity {
 		 return super.onMenuItemSelected(featureId, item);
 	}
 	
-	public void switchTurn(){
+	/**
+	 * Switch the Game turn
+	 */
+	private void switchTurn(){
 		whiteTurn = !whiteTurn;
 		board.switchTurn();
 	}

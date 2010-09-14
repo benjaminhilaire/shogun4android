@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import android.view.MotionEvent;
@@ -15,29 +16,22 @@ import android.view.View;
 
 public class BoardView extends View {
 
-	private static final int BLACK_SHOGUN_ID = 20;
-	private static final int WHITE_SHOGUN_ID = 10;
 	private static final int ICON_HEIGHT = 40;
 	private static final int ICON_WIDTH = 40;
-
-	private SparseIntArray white;
-	private SparseIntArray black;
-	private SparseIntArray positions;
-	private int pawnSelected = 0;
-	private int posSelected = -1;
-	private int whiteShogun;
-	private int blackShogun;
+	
+	private Integer posSelected = null;
 	private boolean whiteTurn = true;
-
-	private SparseBooleanArray possibleMoves;
+	SparseArray<Integer> siTac = new SparseArray<Integer>(64);
+	SparseBooleanArray possibleMoves = new SparseBooleanArray(64);
+	private Boolean winnerWhite = null;
 
 	public BoardView(Context context) {
 		super(context);
 		resetView();
 	}
 
-	public SparseIntArray[] getSaveInfo() {
-		return new SparseIntArray[] { positions, white, black };
+	public SparseArray<Integer> getSaveInfo() {
+		return siTac;
 	}
 	
 	public void switchTurn(){
@@ -45,28 +39,7 @@ public class BoardView extends View {
 	}
 
 	public void resumeSavedView(SparseIntArray[] load) {
-		positions = load[0];
-		white = load[1];
-		black = load[2];
-		for (int i = 0; i < 64; i++) {
-			int toTest = positions.get(i);
-			if (toTest == 10) {
-				whiteShogun = i;
-			} else if (toTest == 20) {
-				blackShogun = i;
-			}
-		}
-	}
-	
-	/**
-	 * Is the pawn can take here ?
-	 */
-	public boolean isPawnTaken(int position){
-		int pawn = positions.get(position);
-		if (pawnSelected != pawn) {
-			return possibleMoves.get(position);
-		}
-		return false;
+		// TO IMPLEMENTS USING MODEL
 	}
 	
 	/**
@@ -75,7 +48,7 @@ public class BoardView extends View {
 	 * @return
 	 */
 	public boolean isPawnMoving(int position){
-			return (pawnSelected != 0 && possibleMoves.get(position));
+			return (posSelected != null && possibleMoves.get(position));
 	}
 
 	public boolean onTouchEvent(MotionEvent event) {
@@ -83,14 +56,14 @@ public class BoardView extends View {
 		boolean returnB = false;
 		switch (action) {
 		case MotionEvent.ACTION_DOWN:
-			int iconicPosition = realToIconic(event.getX(), event.getY());
-			int pawn = positions.get(iconicPosition);
-			if (pawn > 1) { // If selection
-				if (pawnSelected == pawn) { // Deselection
+			int eventPosition = realToIconic(event.getX(), event.getY());
+			Integer pawn = siTac.get(eventPosition);
+			if (pawn != null) { // If selection
+				if (posSelected!= null && posSelected == eventPosition) { // Deselection
 					clearSelected();
 				} else {
-					if (!possibleMoves.get(iconicPosition)) { // PAWN ALREADY SEL
-						addPossibleMoves(pawn, iconicPosition);
+					if (!possibleMoves.get(eventPosition)) { // PAWN ALREADY SEL
+						addPossibleMoves(pawn, eventPosition);
 						returnB = true;
 					}
 				}
@@ -111,26 +84,25 @@ public class BoardView extends View {
 	 * @param iconicPosition
 	 * @param oldPos
 	 */
-	public boolean moveHumanPawn(int iconicPosition,boolean isWhite) {
-		int oldPos = posSelected;
-		int toMove = pawnSelected;
-		Pawn pawn = new Pawn(toMove, iconicPosition, black, white);
-		if (pawn.isWhite() == isWhite){ // Avoid white to move black
-			positions.put(oldPos, 0);
-			positions.put(iconicPosition, toMove);
-			if (pawn.isWhite()) {
-				white.put(toMove - 10, pawn.getNextNbMove());
-				if (pawn.isShogun()) {
-					whiteShogun = iconicPosition;
+	public boolean moveHumanPawn(int targetPosition,boolean isWhite) {
+		Integer oldPos = posSelected;
+		if (oldPos != null){
+			Pawn pawn = new Pawn(siTac.get(posSelected),posSelected);
+			if (pawn.isWhite() == isWhite){ // Avoid white to move black
+				siTac.put(oldPos,null);
+				Integer stateTaken = siTac.get(targetPosition);
+				if (stateTaken != null){
+					Pawn pawnTaken = new Pawn(stateTaken);
+					if (pawnTaken.isShogun()){
+						winnerWhite = isWhite;
+					}
 				}
+				siTac.put(targetPosition,pawn.getNextState());
+				clearSelected();
+				return true;
 			} else {
-				black.put(toMove - 20, pawn.getNextNbMove());
-				if (pawn.isShogun()) {
-					blackShogun = iconicPosition;
-				}
+				return false;
 			}
-			clearSelected();
-			return true;
 		} else {
 			return false;
 		}
@@ -143,8 +115,8 @@ public class BoardView extends View {
 	 * @param iconicPosition
 	 * @param oldPos
 	 */
-	public boolean moveIAPawn(int pawnId,int targetPosition) {
-		addPossibleMoves(pawnId,positions.get(pawnId));
+	public boolean moveIAPawn(int pawnState,int originPostion,int targetPosition) {
+		addPossibleMoves(pawnState,siTac.get(originPostion));
 		if (moveHumanPawn(targetPosition,false)){
 			return true;
 		} else {
@@ -158,15 +130,14 @@ public class BoardView extends View {
 	 * 
 	 * @param pawn
 	 */
-	private void addPossibleMoves(int pawnId, int iconicPosition) {
-		Pawn pawn = new Pawn(pawnId, iconicPosition, black, white);
+	private void addPossibleMoves(int pawnState, int iconicPosition) {
+		Pawn pawn = new Pawn(pawnState, iconicPosition);
 		if (whiteTurn == pawn.isWhite()){
-			pawnSelected = pawnId; // Selection
 			posSelected = iconicPosition;
 			possibleMoves.clear();
-			int[] moves = pawn.getPossibleMove(positions);
+			Integer[] moves = pawn.getPossibleMove(siTac);
 			for (int it = 0; it < 4; it++) {
-				if (moves[it] != 99) {
+				if (moves[it] != null) {
 					possibleMoves.put(moves[it], true);
 				}
 			}
@@ -178,47 +149,30 @@ public class BoardView extends View {
 	 * 08 09 10 11 12 13 14 15 
 	 * 16 17 18 19 20 21 22 23
 	 * 24 25 26 27 28 29 30 31 
-	 * 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
-	 * 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63
+	 * 32 33 34 35 36 37 38 39 
+	 * 40 41 42 43 44 45 46 47
+	 * 48 49 50 51 52 53 54 55 
+	 * 56 57 58 59 60 61 62 63
 	 */
 	private void resetView() {
-		white = createPreFilledArray();
-		black = createPreFilledArray();
-		positions = new SparseIntArray(64);
-		possibleMoves = new SparseBooleanArray(64);
 		// Put the whites into position
-		positions.put(0, WHITE_SHOGUN_ID);
-		positions.put(8, 11);
-		positions.put(16, 12);
-		positions.put(24, 13); // White Shogun !!!
-		positions.put(32, 14);
-		positions.put(40, 15);
-		positions.put(48, 16);
-		positions.put(56, 17);
+		siTac.put(0, 3); // 1 White shogun
+		siTac.put(8, 5); // 2 White pawn
+		siTac.put(16, 9); // 3 White pawn
+		siTac.put(24, 13); // 4 White pawn
+		siTac.put(32, 13); // 4 White pawn
+		siTac.put(40, 9); // 3 White pawn
+		siTac.put(48, 5); // 2 White pawn
+		siTac.put(56, 1); // 1 White pawn
 		// Put the black into position
-		positions.put(7, 27);
-		positions.put(15, 26);
-		positions.put(23, 25);
-		positions.put(31, 24);
-		positions.put(39, 23); // Black Shogun !!!
-		positions.put(47, 22);
-		positions.put(55, 21);
-		positions.put(63, BLACK_SHOGUN_ID);
-		whiteShogun = 0;
-		blackShogun = 63;
-	}
-
-	private SparseIntArray createPreFilledArray() {
-		SparseIntArray array = new SparseIntArray(8);
-		array.put(0, 1);
-		array.put(1, 2);
-		array.put(2, 3);
-		array.put(3, 4);
-		array.put(4, 4);
-		array.put(5, 3);
-		array.put(6, 2);
-		array.put(7, 1);
-		return array;
+		siTac.put(7, 0); // 1 Black pawn
+		siTac.put(15, 4); // 2 Black pawn
+		siTac.put(23, 8); // 3 Black pawn
+		siTac.put(31, 12); // 4 Black pawn
+		siTac.put(39, 12); // 4 Black pawn
+		siTac.put(47, 8); // 3 Black pawn
+		siTac.put(55, 4); // 2 Black pawn
+		siTac.put(63, 2); // Black Shogun !!!
 	}
 
 	/**
@@ -226,20 +180,20 @@ public class BoardView extends View {
 	 */
 	protected void onDraw(Canvas canvas) {
 		for (int pos = 0; pos < 64; pos++) {
-			int pawn = positions.get(pos);
+			Integer pawnState = siTac.get(pos);
 			int[] realPos = null;
-			if (possibleMoves.get(pos) || pos == posSelected) { // Position
+			if (posSelected != null && (possibleMoves.get(pos) || pos == posSelected)) { // Position
 				// selected
 				realPos = iconicToReal(pos);
 				canvas.drawBitmap(getPossibleMoveBitmap(), realPos[0],
 						realPos[1], null);
 			}
-			if (pawn > 1) { // If something on the position : Draw it
+			if (pawnState != null) { // If something on the position : Draw it
 				realPos = iconicToReal(pos);
-				canvas.drawBitmap(getPawnAsBitmap(pawn), realPos[0],
+				canvas.drawBitmap(getPawnAsBitmap(pawnState), realPos[0],
 						realPos[1], null);
 			}
-			if (whiteShogun == pos || blackShogun == pos) {
+			if (pawnState != null && new Pawn(pawnState).isShogun()) { // If it's a shogun : add a crown
 				canvas.drawBitmap(getCrown(), realPos[0], realPos[1], null);
 			}
 		}
@@ -272,9 +226,9 @@ public class BoardView extends View {
 	 * @param pawn
 	 * @return
 	 */
-	private Bitmap getPawnAsBitmap(int pawn) {
+	private Bitmap getPawnAsBitmap(int pawnState) {
 		Resources res = getResources();
-		Pawn pawnPOJO = new Pawn(pawn, black, white);
+		Pawn pawnPOJO = new Pawn(pawnState);
 		if (pawnPOJO.getNbMove() != 0) {
 			Drawable drawable = getDrawablePawn(res, pawnPOJO.getNbMove(),
 					pawnPOJO.isWhite());
@@ -348,17 +302,8 @@ public class BoardView extends View {
 	 * No more selected
 	 */
 	private void clearSelected() {
-		pawnSelected = 0;
-		posSelected = -1;
+		posSelected = null;
 		possibleMoves.clear();
-	}
-	
-	public boolean isWhiteShogun(int position) {
-		return (whiteShogun == position);
-	}
-
-	public boolean isBlackShogun(int position) {
-		return (blackShogun == position);
 	}
 
 	/**
@@ -369,8 +314,8 @@ public class BoardView extends View {
 	 * @return
 	 */
 	public int realToIconic(float x, float y) {
-		int deca = (int) Math.floor(x / ICON_WIDTH);
-		int unite = (int) Math.floor(y / ICON_WIDTH);
+		short deca = (short) Math.floor(x / ICON_WIDTH);
+		short unite = (short) Math.floor(y / ICON_WIDTH);
 		return 8 * unite + deca;
 	}
 
@@ -384,6 +329,10 @@ public class BoardView extends View {
 		int collumn = number % 8;
 		int line = (int) Math.floor(number / 8);
 		return new int[] { collumn * ICON_HEIGHT, line * ICON_WIDTH };
+	}
+	
+	public Boolean getWinner(){
+		return winnerWhite;
 	}
 
 }
