@@ -1,74 +1,40 @@
 package org.spiritsofts.shogun.board.model;
 
-import android.util.SparseIntArray;
+import android.util.SparseArray;
 
 public class Pawn {
-	private static final int IMPOSSIBLE_MOVE = 99;
-
-	private int m_id; // ID of the pawn CANNOT BE CHANGED
-
-	private int m_nbMove; // Number of move for the pawn
 
 	private int m_location; // Iconic location
 
-	private boolean m_white; // CANNOT BE CHANGED
+	private Boolean m_white; // CANNOT BE CHANGED
 
-	private boolean m_shogun; // CANNOT BE CHANGED
+	private Boolean m_shogun; // CANNOT BE CHANGED
+	
+	private Integer m_nbMove; // Number of move for the pawn
+	
+	private int m_state;
 
-	public Pawn(int id, int location) {
-		m_id = id;
-		populateFromId(id);
+	public Pawn(Integer state,int location) {
+		m_state = state;
 		m_location = location;
 	}
-
-	public Pawn(int id) {
-		m_id = id;
-		populateFromId(id);
+	
+	public Pawn(Integer state) {
+		m_state = state;
 	}
 	
-	private void populateFromId(int id){
-		m_white = false;
-		if (id > 10 && id < 19) { // White pawn
-			m_white = true;
-		} else if (id == 10){
-			m_white = true;
-			m_shogun = true;
-		} else if (id == 20){
-			m_shogun = true;
+	public boolean isWhite(){
+		if (m_white == null){
+			m_white = ((m_state % 2) == 1);
 		}
+		return m_white;
 	}
 	
-	public Pawn(int id,SparseIntArray black,SparseIntArray white) {
-		m_id = id;
-		populateFromId(id);
-		if (m_white){
-			m_nbMove = white.get(id-10);
-		} else {
-			m_nbMove = black.get(id-20);
-		}
-	}
-	
-	public Pawn(int id,int location,SparseIntArray black,SparseIntArray white) {
-		m_id = id;
-		populateFromId(id);
-		m_location = location;
-		if (m_white){
-			m_nbMove = white.get(id-10);
-		} else {
-			m_nbMove = black.get(id-20);
-		}
-	}
-
-	public int getId() {
-		return m_id;
-	}
-
 	public int getNbMove() {
+		if (m_nbMove == null){
+			m_nbMove = (int) Math.floor(m_state / 4)+1;
+		}
 		return m_nbMove;
-	}
-
-	public void setNbMove(int nbMove) {
-		this.m_nbMove = nbMove;
 	}
 
 	public int getLocation() {
@@ -79,44 +45,35 @@ public class Pawn {
 		this.m_location = location;
 	}
 
-	public boolean isWhite() {
-		return m_white;
-	}
-
 	public boolean isShogun() {
+		if (m_shogun == null){
+			m_shogun = ((m_state / 2)%2 == 1);
+		}
 		return m_shogun;
 	}
 
-	public int[] getPossibleMove(SparseIntArray positions){
-		int[] result = new int[4];
-		int nbMove = m_nbMove;
+	public Integer[] getPossibleMove(SparseArray<Integer> siTac){
+		Integer[] result = new Integer[4];
+		int nbMove = getNbMove();
 		int location = m_location;
 		int leftDistance = m_location%8; 
-		if (leftDistance+nbMove < 8){ // Right
-			result[1] =  isPossibleMove(location,location + nbMove,true,false,positions);
-		} else {
-			result[1] = IMPOSSIBLE_MOVE;
+		if (leftDistance-nbMove >= 0){ // LEFT
+			result[0] = isPossibleMove(location,location - nbMove,true,true,siTac);
 		}
-		if (leftDistance-nbMove >= 0){
-			result[0] = isPossibleMove(location,location - nbMove,true,true,positions);
-		} else {
-			result[0] = IMPOSSIBLE_MOVE;
+		if (leftDistance+nbMove < 8){ // RIGHT
+			result[1] =  isPossibleMove(location,location + nbMove,true,false,siTac);
 		}
 		int bigMove = 8*nbMove;
-		if (m_location-bigMove < 64){
-			result[2] = isPossibleMove(location,location - bigMove,false,true,positions);
-		} else {
-			result[2] = IMPOSSIBLE_MOVE;
+		if (m_location-bigMove < 64){ // TOP 
+			result[2] = isPossibleMove(location,location - bigMove,false,true,siTac);
 		}
-		if (leftDistance+bigMove >= 0){
-			result[3] = isPossibleMove(location,location + bigMove,false,false,positions);
-		} else {
-			result[3] = IMPOSSIBLE_MOVE;
+		if (leftDistance+bigMove >= 0){ // BOTTOM
+			result[3] = isPossibleMove(location,location + bigMove,false,false,siTac);
 		}
 		return result;
 	}
 	
-	public int isPossibleMove(int origin,int target,boolean horizontal,boolean topleft,SparseIntArray positions){
+	public Integer isPossibleMove(int origin,int target,boolean horizontal,boolean topleft,SparseArray<Integer> siTac){
 		boolean success=true;
 		int delta;
 		if (horizontal){
@@ -130,42 +87,38 @@ public class Pawn {
 		int it=origin;
 		while(it != target && success){
 			it = it+delta;
-			if (positions.get(it) != 0 && it!= target){
+			if (siTac.get(it) != null && it!= target){
 				success = false;
 			}
 		}
-		if (success && isNotAFriend(positions.get(target))){
+		if (success && isNotAFriend(siTac.get(target))){
 			return target;
-		} else {
-			return IMPOSSIBLE_MOVE;
-		}	
+		}
+		return null;
 	}
 	
-	private boolean isNotAFriend(int id){
-		if (m_white){
-			if (id >= 10 && id < 20){
-				return false;
-			}
-		} else {
-			if (id >= 20 && id < 30){
-				return false;
+	private boolean isNotAFriend(Integer otherState){
+		if (otherState != null){
+			if (m_white){
+				return (otherState % 2 == 0);
+			} else {
+				return (otherState % 2 == 1);
 			}
 		}
 		return true;
 	}
 	
-	public int getColoredId(){
-		if (m_white){
-			return m_id-10;
-		} else {
-			return m_id-20;
+	public int getNextState(){
+		int next = getNbMove();
+		if (next >= 4){
+			next = 0;
 		}
-	}
-	
-	public int getNextNbMove(){
-		int next = m_nbMove+1;
-		if (next > 4){
-			next = 1;
+		next*=4;
+		if (isShogun()){
+			next+=2;
+		}
+		if (isWhite()){
+			next++;
 		}
 		return next;
 	}

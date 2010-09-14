@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 public class Shogun extends ListActivity {
 	public static final String LOAD = "LOAD";
-	public static final String ONEPLAYER = "ONEPLAYER";
+	public static final String IA_LEVEL = "IA_LEVEL";
 	/** Called when the activity is first created. */
 	
     private static final int ACTIVITY_BOARD=0;
@@ -53,7 +53,9 @@ public class Shogun extends ListActivity {
 	private void startGame(boolean resumed,boolean onePlayer) {
 		Intent i = new Intent(this,Board.class);
 		i.putExtra(LOAD,resumed);
-		i.putExtra(ONEPLAYER,onePlayer);
+		if (onePlayer){
+			i.putExtra(IA_LEVEL,1);
+		}
 		startActivityForResult(i, ACTIVITY_BOARD);
 	}
 	
