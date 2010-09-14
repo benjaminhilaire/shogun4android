@@ -1,4 +1,4 @@
-#summary This page will explain the next dev to do
+#summary This page will explain the previous optmimization DEV
 
 = Goal =
 
@@ -31,3 +31,23 @@ Using String temp = Integer.toBinaryString(tt); or any % operator we will easily
  * Replacing all pawn ID by this state
  * Replacing all pawn constructor and extract methods to use this state analyser
  * Using PAWN object as much as possible
+
+= Conclusion =
+        private SparseIntArray white;
+        private SparseIntArray black;
+        private SparseIntArray positions;
+        private int pawnSelected = 0;
+        private int posSelected = -1;
+        private int whiteShogun;
+        private int blackShogun;
+        private boolean whiteTurn = true;
+
+becomes 
+
+	private Integer posSelected = null;
+	private boolean whiteTurn = true;
+	SparseArray<Integer> siTac = new SparseArray<Integer>(64);
+	SparseBooleanArray possibleMoves = new SparseBooleanArray(64);
+	private Boolean winnerWhite = null;
+
+However, the "Integer" with null state meant a lot of NULL tests
