@@ -1,4 +1,4 @@
-#summary This page will explain the previous optmimization DEV
+#summary This page will explain the previous optmization DEV
 
 = Goal =
 
