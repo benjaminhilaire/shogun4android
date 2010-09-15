@@ -1,8 +1,0 @@
-#summary IA Level 1 algo
-#labels Phase-Design
-= Introduction =
-
-This will explain basically the algorythm of the stupidest IA level
-
-
-= Details =
