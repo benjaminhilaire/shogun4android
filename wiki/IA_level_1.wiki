@@ -14,15 +14,15 @@ For every "moveable" position, we RATE the move.
 The highest RATE is the actual move the IA will do.
 
 The base of the rating is the consequences (for n moves) of this move or stay :
--20 : IA shogun will be taken
--3 : A Human pawn won't be taken if it's move
--2 : a IA pawn will be taken
-1 : stop protecting another pawn
-0 : Neutral move
-+1 = IA will protect another pawn
-+2 = A human pawn will be taken
-+3 = The pawn won't be taken if its moves
-+20 : Human shogun will be taken
+ * -20 : IA shogun will be taken
+ * -3 : A Human pawn won't be taken if it's move
+ * -2 : a IA pawn will be taken
+ * 1 : stop protecting another pawn
+ * 0 : Neutral move
+ * +1 = IA will protect another pawn
+ * +2 = A human pawn will be taken
+ * +3 = The pawn won't be taken if its moves
+ * +20 : Human shogun will be taken
 
 Each move will then have a RATE between -10 and 10.
 
