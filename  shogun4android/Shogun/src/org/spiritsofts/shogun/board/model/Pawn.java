@@ -1,6 +1,7 @@
 package org.spiritsofts.shogun.board.model;
 
-import android.util.SparseArray;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Pawn {
 
@@ -10,9 +11,11 @@ public class Pawn {
 
 	private Boolean m_shogun; // CANNOT BE CHANGED
 	
-	private Integer m_nbMove; // Number of move for the pawn
+	private int m_nbMove; // Number of move for the pawn
 	
 	private int m_state;
+	
+	private boolean mProtection = true;
 
 	public Pawn(Integer state,int location) {
 		m_state = state;
@@ -31,7 +34,7 @@ public class Pawn {
 	}
 	
 	public int getNbMove() {
-		if (m_nbMove == null){
+		if (m_nbMove == 0){
 			m_nbMove = (int) Math.floor(m_state / 4)+1;
 		}
 		return m_nbMove;
@@ -52,28 +55,29 @@ public class Pawn {
 		return m_shogun;
 	}
 
-	public Integer[] getPossibleMove(SparseArray<Integer> siTac){
-		Integer[] result = new Integer[4];
+	public List<Integer> getPossibleMove(int[] siTac,boolean protection){
 		int nbMove = getNbMove();
 		int location = m_location;
-		int leftDistance = m_location%8; 
-		if (leftDistance-nbMove >= 0){ // LEFT
-			result[0] = isPossibleMove(location,location - nbMove,true,true,siTac);
+		int leftDistance = m_location%8;
+		mProtection = protection;
+		List<Integer> result = new ArrayList<Integer>(4);
+		if (leftDistance-nbMove >= 0 && isPossibleMove(location,location - nbMove,true,true,siTac)){ // LEFT
+			result.add(location - nbMove);		
 		}
-		if (leftDistance+nbMove < 8){ // RIGHT
-			result[1] =  isPossibleMove(location,location + nbMove,true,false,siTac);
+		if (leftDistance+nbMove < 8 && isPossibleMove(location,location + nbMove,true,false,siTac)){ // RIGHT
+			result.add(location + nbMove);
 		}
 		int bigMove = 8*nbMove;
-		if (m_location-bigMove < 64){ // TOP 
-			result[2] = isPossibleMove(location,location - bigMove,false,true,siTac);
+		if ((location-bigMove) >= 0 && (isPossibleMove(location,location - bigMove,false,true,siTac))){ // TOP 
+			result.add(location - bigMove);
 		}
-		if (leftDistance+bigMove >= 0){ // BOTTOM
-			result[3] = isPossibleMove(location,location + bigMove,false,false,siTac);
+		if ((location+bigMove) < 64 && (isPossibleMove(location,location + bigMove,false,false,siTac))){ // BOTTOM
+			result.add(location + bigMove);
 		}
 		return result;
 	}
 	
-	public Integer isPossibleMove(int origin,int target,boolean horizontal,boolean topleft,SparseArray<Integer> siTac){
+	public boolean isPossibleMove(int origin,int target,boolean horizontal,boolean topleft,int[] siTac){
 		boolean success=true;
 		int delta;
 		if (horizontal){
@@ -87,18 +91,18 @@ public class Pawn {
 		int it=origin;
 		while(it != target && success){
 			it = it+delta;
-			if (siTac.get(it) != null && it!= target){
+			if (siTac[it] >= 0 && it!= target){
 				success = false;
 			}
 		}
-		if (success && isNotAFriend(siTac.get(target))){
-			return target;
+		if (success && isNotAFriend(siTac[target])){
+			return true;
 		}
-		return null;
+		return false;
 	}
 	
-	private boolean isNotAFriend(Integer otherState){
-		if (otherState != null){
+	private boolean isNotAFriend(int otherState){
+		if (otherState >= 0 && mProtection){
 			if (m_white){
 				return (otherState % 2 == 0);
 			} else {
