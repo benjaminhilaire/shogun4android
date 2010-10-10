@@ -2,6 +2,8 @@ package org.spiritsofts.shogun.board;
 
 import org.spiritsofts.shogun.R;
 import org.spiritsofts.shogun.Shogun;
+import org.spiritsofts.shogun.board.ai.ArtificialIntelligence;
+import org.spiritsofts.shogun.board.ai.basic.LevelOne;
 import org.spiritsofts.shogun.board.view.BoardView;
 import org.spiritsofts.shogun.howto.Rules;
 
@@ -19,27 +21,39 @@ public class Board extends Activity {
 	private BoardView board;
 	private boolean onePlayer = false;
 	private boolean whiteTurn = true;
-	private int m_IALevel;
+	private int m_AILevel;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		board = new BoardView(getApplicationContext());
 		Bundle extra = getIntent().getExtras();
-		if (!extra.getBoolean(Shogun.LOAD)) {
-			loadGame();
+		if (extra.getBoolean(Shogun.LOAD)) {
+			board = getLastGame();
+		} else {
+			board = new BoardView(getApplicationContext());
 		}
 		int level = extra.getInt(Shogun.IA_LEVEL);
 		if (level > 0){
 			onePlayer = true;
-			m_IALevel = level;
+			m_AILevel = level;
 		} else {
 			onePlayer = false;
 		}
 		setContentView(board);
 	}
 
-	private void loadGame() {
-		// board.resumeSavedView(load);
+	private BoardView getLastGame() {
+		return new BoardView(getApplicationContext());
+		// TODO : Get somewhere the last saved game
+	}
+	
+	private void loadGame(int[] positions, boolean white){
+		board.resumeSavedView(positions, white);
+	}
+	
+	private void loadLastGame(){
+		// TODO : get somewhere the last game
+		loadGame(null,true);
+		// TODO Get the IA Level
 	}
 
 	@Override
@@ -57,11 +71,13 @@ public class Board extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		loadGame();
+		//loadLastGame();
 	}
 
 	private void saveGame() {
-		//SparseArray<Integer> saveGame = board.getSaveInfo();
+		int[] saveGame = board.getSaveInfo();
+		boolean whiteTurn = board.getTurn();
+		// TODO : Save somewhere
 	}
 
 	@Override
@@ -72,7 +88,7 @@ public class Board extends Activity {
 			if (onePlayer){
 				if (whiteTurn){
 					if (humanTurn(position)){
-						IAturn();
+						AIturn();
 					}
 				}
 			} else {
@@ -86,8 +102,11 @@ public class Board extends Activity {
 		return super.onTouchEvent(event);
 	}
 
-	private void IAturn() {
+	private void AIturn() {
 		switchTurn();
+		ArtificialIntelligence lvl = new LevelOne();
+		int[] toMove = lvl.calculateNextMove(board.getSaveInfo());
+		board.moveAIPawn(toMove[0],toMove[1]);
 	}
 	
 	private boolean humanTurn(int position){
